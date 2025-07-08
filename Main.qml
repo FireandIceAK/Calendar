@@ -94,9 +94,9 @@ ApplicationWindow {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             font.pixelSize: 20
+                            opacity: text !== "" ? 1 : 0 // Прозрачность для пустых кнопок
                             enabled: text !== ""
                             // highlighted: text === selectedDay && view.currentIndex === monthPage.monthIndex
-
                             onClicked: {
                                 console.log("Day clicked: " + text + " in " + monthName)
                                 selectedDay = text

@@ -6,8 +6,8 @@ int main(int argc, char *argv[])
 {
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
 
-    QSettings settings("MySoft", "Calendar");
     QGuiApplication app(argc, argv);
+    QSettings settings("MySoft", "Calendar");
 
     QQmlApplicationEngine engine;
     QObject::connect(
