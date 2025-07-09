@@ -17,6 +17,15 @@ qt_add_qml_module(appcalendar
     VERSION 1.0
     QML_FILES
         Main.qml
+        DetailsWindow.qml
+    RESOURCES
+        images/pngwing.com.png
+        resources.qrc
+
+    SOURCES
+        calendarmodel.h
+        calendarmodel.cpp
+        RESOURCES qmldir
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

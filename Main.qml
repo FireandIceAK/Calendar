@@ -7,31 +7,9 @@ ApplicationWindow {
     width: 700
     height: 500
     visible: true
-    title: "Calendar"
+    title: "Календарь"
 
-    // Массив месяцев
-    property var months: [
-        { name: "Январь", days: 31, year: 2025 },
-        { name: "Февраль", days: isLeapYear(2025) ? 29 : 28, year: 2025 },
-        { name: "Март", days: 31, year: 2025 },
-        { name: "Апрель", days: 30, year: 2025 },
-        { name: "Май", days: 31, year: 2025 },
-        { name: "Июнь", days: 30, year: 2025 },
-        { name: "Июль", days: 31, year: 2025 },
-        { name: "Август", days: 31, year: 2025 },
-        { name: "Сентябрь", days: 30, year: 2025 },
-        { name: "Октябрь", days: 31, year: 2025 },
-        { name: "Ноябрь", days: 30, year: 2025 },
-        { name: "Декабрь", days: 31, year: 2025 }
-    ]
-
-    // Функция для проверки високосного года
-    function isLeapYear(year) {
-        return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0)
-    }
-
-    // Текущий выбранный день
-    property string selectedDay: ""
+    property Component detailsWindowComponent: Qt.createComponent("DetailsWindow.qml")
 
     SwipeView {
         id: view
@@ -39,21 +17,21 @@ ApplicationWindow {
         focus: true
 
         Repeater {
-            model: months
+            model: 12 // Количество месяцев
 
             ColumnLayout {
                 id: monthPage
                 spacing: 10
-                property int monthIndex: index
-                property string monthName: months[index].name
-                property int daysInMonth: months[index].days
-                property int year: months[index].year
-                // Вычисляем смещение первого дня месяца (0=вс, 1=пн, ..., 6=сб)
-                property int firstDayOffset: (new Date(year, monthIndex, 1).getDay() + 6) % 7 // Сдвиг, чтобы понедельник был 0
+                property int monthIndex: index ?? 0
+                property var monthData: calendarModel.getMonthData(index) ?? null
+                property string monthName: monthData[0] ?? ""
+                property int daysInMonth: monthData[1] ?? 0
+                property int year: monthData[2] ?? 0
+                property int firstDayOffset: calendarModel.getFirstDayOffset(index) ?? 0
 
-                Component.onCompleted: {
-                    console.log("Month: " + monthName + ", First day offset: " + firstDayOffset)
-                }
+                // Component.onCompleted: {
+                //     console.log("Month: " + monthName + ", First day offset: " + firstDayOffset)
+                // }
 
                 Text {
                     Layout.alignment: Qt.AlignHCenter
@@ -96,10 +74,21 @@ ApplicationWindow {
                             font.pixelSize: 20
                             opacity: text !== "" ? 1 : 0 // Прозрачность для пустых кнопок
                             enabled: text !== ""
-                            // highlighted: text === selectedDay && view.currentIndex === monthPage.monthIndex
+                            highlighted: text !== "" && calendarModel.selectedDay === parseInt(text) && view.currentIndex === monthPage.monthIndex
+
                             onClicked: {
                                 console.log("Day clicked: " + text + " in " + monthName)
-                                selectedDay = text
+                                calendarModel.setSelectedDay(parseInt(text))
+                                if (detailsWindowComponent.status === Component.Ready) {
+                                    var window = detailsWindowComponent.createObject(window, {
+                                        day: parseInt(text),
+                                        month: monthName,
+                                        year: year,
+                                        monthIndex: monthPage.monthIndex
+                                    })
+                                } else {
+                                    console.log("Error loading DetailsWindow: " + detailsWindowComponent.errorString())
+                                }
                             }
                         }
                     }
